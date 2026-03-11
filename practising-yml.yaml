@@ -1,0 +1,124 @@
+trigger:
+ branches:
+  include:
+    main
+    develop
+
+variables:
+ dockerRegistryServiceConnection: ACR-service-connection
+ containerRegistry: myacr.azurecr.io
+ dockerfilepath: $(Build.SourcesDirectory)/Dockerfile
+ imageRepository: 'my-app-dkn'
+ tag: $(Build.BuildId)
+
+ aksServiceConnection: AKS-service-connection
+ 
+ chartPath: $(Build.SourcesDirectory)/charts/myapp
+ releaseName: my-app-release
+
+ stagingResourceGroup: AKS-staging-rg
+ stagingAksCluster: AKS-staging-cluster
+ stagingNamespace: AKS-stage-ns
+
+ prodResourceGroup: AKS-prod-rg
+ prodAksCluster: AKS-prod-cluster
+ prodNamespace: AKS-prod-ns
+
+
+stages:
+ - stage: Build
+   displayName: Docker Build and Push
+
+   jobs:
+   - job: Build
+     displayName: Build & Push to ACR
+     pool: 
+      vmImage: ubuntu-latest
+
+   steps:
+   - task: Docker@2
+     displayName: Build and Push
+     inputs:
+      command: buildAndPush
+      repository: $(imageRepository)
+      dockerfile: $(dockerfilepath)
+      tags: |
+       $(tag)
+
+
+ - stage: DeployStaging
+   displayName: Deploying to stage
+   dependsOn: Build
+   condition: succeeded()
+   jobs:
+   - deployment: DeployStaging
+     displayName: Helm deploy to Staging
+     pool:
+      vmImage: ubuntu-latest
+     environment: Staging
+     strategy:
+      runOnce:
+       deploy:
+        steps:
+        
+        - task: HelmInstaller@1
+          displayName: Installing Helm
+          input: 
+            helmVersionToInstall: latest
+
+        - task: HelmDeploy@0
+          displayName: Deploying Helm charts
+          input:
+           connectionType: Azure Resource Manager
+           aksServiceConnection: $(aksServiceConnection)
+           azureResourceGroup: $(stagingResourceGroup)
+           kubernetesCluster: $(stagingAksCluster)
+           namespace: $(stagingNamespace)
+           command: upgrade
+           chartType: FilePath
+           chartPath: $(chartPath)
+           releaseName: $(releaseName)
+           valueFile: $(chartPath)/values-staging.yml
+           overrideValues: image.repository=$(containerRegistry)/$(imageRepository),image.tag=$(tag),replicaCount=2
+           install: true
+           waitForExecution: true
+           failOnstderr: true
+
+
+ - stage: DeployProd
+   displayName: Deploying to production
+   dependsOn: DeployStaging
+   condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'ref/heads/main'))
+   jobs:
+   - deployment: DeployProd
+     displayName: Helm deploy to Production
+     pool:
+      vmImage: ubuntu-latest
+     environment: Production
+     strategy:
+      runOnce:
+       deploy:
+        steps:
+        
+        - task: HelmInstaller@1
+          displayName: Installing Helm
+          input: 
+            helmVersionToInstall: latest
+
+        - task: HelmDeploy@0
+          displayName: Deploying Helm charts
+          input:
+           connectionType: Azure Resource Manager
+           aksServiceConnection: $(aksServiceConnection)
+           azureResourceGroup: $(prodResourceGroup)
+           kubernetesCluster: $(prodAksCluster)
+           namespace: $(prodNamespace)
+           command: upgrade
+           chartType: FilePath
+           chartPath: $(chartPath)
+           releaseName: $(releaseName)
+           valueFile: $(chartPath)/values-prod.yml
+           overrideValues: image.repository=$(containerRegistry)/$(imageRepository),image.tag=$(tag),replicaCount=3
+           install: true
+           waitForExecution: true
+           failOnstderr: true
