@@ -12,11 +12,11 @@ jobs:
   daily-commits:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v4.2.2   # latest v4 with Node 24 support
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
 
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v5.4.0   # latest v5 with Node 24 support
         with:
           python-version: '3.11'
 
