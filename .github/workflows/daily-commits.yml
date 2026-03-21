@@ -29,8 +29,8 @@ jobs:
 
       - name: Configure git
         run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git config user.name "DineshKNarayanankutty"
+          git config user.email "dineshknarayanankutty@gmail.com"
 
       - name: Check if today is a skip day
         id: skip_check
