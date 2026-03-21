@@ -50,7 +50,7 @@ jobs:
 
       - name: Run daily commit engine
         if: steps.skip_check.outputs.skip == 'false'
-        run: python scripts/daily_engine.py
+        run: python Scripts/daily_engine.py
 
       - name: Push all commits
         if: steps.skip_check.outputs.skip == 'false'
