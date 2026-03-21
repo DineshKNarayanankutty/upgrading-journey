@@ -25,8 +25,24 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
 
+      - name: Check if today is a skip day
+        id: skip_check
+        run: |
+          python - <<'EOF'
+          import hashlib, os
+          from datetime import date
+          today = date.today().isoformat()
+          seed  = int(hashlib.md5(today.encode()).hexdigest(), 16) % 100
+          skip  = "true" if seed < 25 else "false"
+          print(f"Skip decision for {today}: {skip} (seed={seed})")
+          with open(os.environ['GITHUB_OUTPUT'], 'a') as f:
+              f.write(f"skip={skip}\n")
+          EOF
+
       - name: Run daily commit engine
+        if: steps.skip_check.outputs.skip == 'false'
         run: python scripts/daily_engine.py
 
       - name: Push all commits
+        if: steps.skip_check.outputs.skip == 'false'
         run: git push
