@@ -30,7 +30,7 @@ jobs:
       - name: Configure git
         run: |
           git config user.name "DineshKNarayanankutty"
-          git config user.email "dineshknarayanankutty@gmail.com"
+          git config user.email "dineshknarayanan.official@gmail.com"
 
       - name: Check if today is a skip day
         id: skip_check
