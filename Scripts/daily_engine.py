@@ -115,7 +115,7 @@ def main():
         entries.append(entry)
         print(f"  [{idx}/{n_commits}] committed {cat}/{fn}")
         if idx < len(chosen):
-            sleep_sec = random.randint(60, 180)  # ~2 min max between commits
+            sleep_sec = random.randint(10, 20)  
             print(f"  sleeping {sleep_sec}s...")
             time.sleep(sleep_sec)
 
