@@ -6,12 +6,12 @@ on:
   workflow_dispatch:      # manual trigger for testing
     inputs:
       force:
-        description: 'Skip the skip-check and force run'
+        description: 'Force run (skip the skip-check)'
         type: boolean
         default: false
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
-  
+
 permissions:
   contents: write
 
@@ -38,10 +38,12 @@ jobs:
           python - <<'EOF'
           import hashlib, os
           from datetime import date
+
+          force = "${{ github.event.inputs.force }}" == "true"
           today = date.today().isoformat()
           seed  = int(hashlib.md5(today.encode()).hexdigest(), 16) % 100
-          skip  = "true" if seed < 25 else "false"
-          print(f"Skip decision for {today}: {skip} (seed={seed})")
+          skip  = "false" if force else ("true" if seed < 25 else "false")
+          print(f"Skip decision for {today}: {skip} (seed={seed}, forced={force})")
           with open(os.environ['GITHUB_OUTPUT'], 'a') as f:
               f.write(f"skip={skip}\n")
           EOF
