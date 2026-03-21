@@ -1,9 +1,9 @@
 import os, random, subprocess, time
-from datetime import date, datetime
+from datetime import date, datetime, timezone
 from pathlib import Path
 
 TODAY = date.today().isoformat()
-NOW   = datetime.utcnow()
+NOW   = datetime.now(timezone.utc)
 
 # ── Content bank ──────────────────────────────────────────────────────────────
 TOPICS = {
@@ -102,7 +102,7 @@ def build_report(entries: list[str]) -> None:
         index.write_text(existing + link)
 
 def main():
-    n_commits = random.randint(5, 10)
+    n_commits = random.randint(5, 20)
     print(f"[engine] targeting {n_commits} commits for {TODAY}")
 
     # Flatten all topics into (category, filename, content) tuples
