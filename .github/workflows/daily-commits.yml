@@ -2,8 +2,13 @@ name: Daily DevOps Commits
 
 on:
   schedule:
-    - cron: '0 5 * * *'   # 05:00 UTC daily (10:30 IST)
-  workflow_dispatch:        # manual trigger for testing
+    - cron: '0 4 * * *'   # 05:00 UTC daily (09:30 IST)
+  workflow_dispatch:      # manual trigger for testing
+    inputs:
+      force:
+        description: 'Skip the skip-check and force run'
+        type: boolean
+        default: false
 
 permissions:
   contents: write
