@@ -1,0 +1,32 @@
+name: Daily DevOps Commits
+
+on:
+  schedule:
+    - cron: '0 5 * * *'   # 05:00 UTC daily (10:30 IST)
+  workflow_dispatch:        # manual trigger for testing
+
+permissions:
+  contents: write
+
+jobs:
+  daily-commits:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Configure git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Run daily commit engine
+        run: python scripts/daily_engine.py
+
+      - name: Push all commits
+        run: git push
