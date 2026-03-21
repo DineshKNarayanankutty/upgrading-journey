@@ -127,26 +127,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-```
-
----
-
-## Repo structure it creates
-```
-your-repo/
-├── .github/workflows/daily-commits.yml
-├── scripts/daily_engine.py
-├── content/
-│   ├── kubectl/
-│   ├── terraform/
-│   ├── docker/
-│   ├── prometheus/
-│   ├── mlops/
-│   ├── azure/
-│   ├── aws/
-│   └── helm/
-└── daily-reports/
-    ├── README.md          ← index of all reports
-    ├── 2025-03-21.md
-    ├── 2025-03-22.md
-    └── ...
