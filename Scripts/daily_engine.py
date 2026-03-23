@@ -70,15 +70,16 @@ def git(cmd: str) -> None:
     if result.returncode != 0:
         print(f"[git error] {result.stderr.strip()}")
 
-def make_commit(category: str, filename: str, content: str, idx: int) -> str:
+def make_commit(category, filename, content, idx):
     folder = Path(f"content/{category}")
     folder.mkdir(parents=True, exist_ok=True)
-    filepath = folder / filename
+    filepath = folder / f"{TODAY}-{filename}"
     filepath.write_text(content)
-    git(f'git add content/{category}/{filename}')
+    git(f'git add content/{category}/{TODAY}-{filename}')
     msg = f"chore({category}): add {filename} [{TODAY} #{idx}]"
     git(f'git commit -m "{msg}"')
-    return f"- `{category}/{filename}` — {msg}"
+    git('git push')
+    return f"- `{category}/{TODAY}-{filename}` — {msg}"
 
 def build_report(entries: list[str]) -> None:
     report_dir = Path("daily-reports")
@@ -101,28 +102,25 @@ def build_report(entries: list[str]) -> None:
     if link not in existing:
         index.write_text(existing + link)
 
+
 def main():
-    n_commits = random.randint(5, 20)
+    n_commits = random.randint(5, 10)
     print(f"[engine] targeting {n_commits} commits for {TODAY}")
-
-    # Flatten all topics into (category, filename, content) tuples
     all_items = [(cat, fn, body) for cat, items in TOPICS.items() for fn, body in items]
-    chosen    = random.sample(all_items, min(n_commits, len(all_items)))
-
+    chosen = random.sample(all_items, min(n_commits, len(all_items)))
     entries = []
     for idx, (cat, fn, body) in enumerate(chosen, 1):
-        entry = make_commit(cat, fn, body, idx)
+        entry = make_commit(cat, fn, body, idx)   # push happens inside
         entries.append(entry)
-        print(f"  [{idx}/{n_commits}] committed {cat}/{fn}")
+        print(f"  [{idx}/{n_commits}] committed and pushed {cat}/{fn}")
         if idx < len(chosen):
-            sleep_sec = random.randint(10, 20)  
+            sleep_sec = random.randint(10, 30)
             print(f"  sleeping {sleep_sec}s...")
             time.sleep(sleep_sec)
-
-    # Build and commit the daily report
     build_report(entries)
     git(f'git add daily-reports/')
     git(f'git commit -m "report: daily summary {TODAY}"')
+    git('git push')           # final push for the report commit
     print(f"[engine] done — {len(entries)} commits + 1 report commit")
 
 if __name__ == "__main__":
