@@ -104,7 +104,7 @@ def build_report(entries: list[str]) -> None:
 
 
 def main():
-    n_commits = random.randint(5, 10)
+    n_commits = random.randint(5, 25)
     print(f"[engine] targeting {n_commits} commits for {TODAY}")
     all_items = [(cat, fn, body) for cat, items in TOPICS.items() for fn, body in items]
     chosen = random.sample(all_items, min(n_commits, len(all_items)))
