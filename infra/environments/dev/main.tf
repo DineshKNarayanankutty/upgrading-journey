@@ -6,11 +6,20 @@ terraform {
       source  = "hashicorp/azurerm"
       version = "~> 4.0"
     }
+
+    databricks = {
+      source  = "databricks/databricks"
+      version = "~> 1.4"
+    }
   }
 }
 
 provider "azurerm" {
   features {}
+}
+
+provider "databricks" {
+  host = module.databricks_workspace.workspace_url
 }
 
 module "resource_group" {
@@ -46,4 +55,48 @@ module "databricks_workspace" {
   sku = "premium"
 
   tags = var.tags
+}
+
+module "rbac" {
+  source = "../../modules/rbac"
+
+  storage_account_id = module.storage_account.id
+  principal_id       = data.azurerm_databricks_access_connector.this.identity[0].principal_id
+}
+
+data "azurerm_databricks_access_connector" "this" {
+  name                = "unity-catalog-access-connector"
+  resource_group_name = "${var.databricks_workspace_name}-managed-rg"
+}
+
+module "unity_catalog" {
+  source = "../../modules/unity_catalog"
+  name   = "cred-sa-dev"
+
+  access_connector_id = data.azurerm_databricks_access_connector.this.id
+
+  storage_account_name = var.storage_account_name
+}
+
+resource "databricks_catalog" "this" {
+  name = "learning"
+
+  comment = "Main data catalog"
+
+  storage_root = "abfss://gold@${var.storage_account_name}.dfs.core.windows.net/unity-catlog/learning/"
+}
+
+resource "databricks_schema" "bronze" {
+  name         = "bronze"
+  catalog_name = databricks_catalog.this.name
+}
+
+resource "databricks_schema" "silver" {
+  name         = "silver"
+  catalog_name = databricks_catalog.this.name
+}
+
+resource "databricks_schema" "gold" {
+  name         = "gold"
+  catalog_name = databricks_catalog.this.name
 }
