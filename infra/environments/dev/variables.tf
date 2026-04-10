@@ -22,3 +22,8 @@ variable "databricks_workspace_name" {
   description = "Databricks Name"
   type        = string
 }
+
+variable "adf_name" {
+  description = "Azure Data Factory Name"
+  type = string
+}
