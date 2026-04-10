@@ -5,3 +5,7 @@ variable "storage_account_id" {
 variable "principal_id" {
   type = string
 }
+
+variable "key_vault_id" {
+  type = string
+}
