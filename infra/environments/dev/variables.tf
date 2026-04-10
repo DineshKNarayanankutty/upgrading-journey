@@ -25,5 +25,21 @@ variable "databricks_workspace_name" {
 
 variable "adf_name" {
   description = "Azure Data Factory Name"
-  type = string
+  type        = string
 }
+
+variable "keyvault_name" {
+  description = "Key Vault Name"
+  type        = string
+}
+
+# variable "databricks_pat" {
+#   description = "Databricks PAT Token"
+#   type = string
+#   sensitive = true
+# }
+
+# variable "databricks_cluster_id" {
+#   description = "Databricks Cluster ID"
+#   type = string
+# }
