@@ -100,3 +100,23 @@ resource "databricks_schema" "gold" {
   name         = "gold"
   catalog_name = databricks_catalog.this.name
 }
+
+resource "random_string" "suffix" {
+  length = 4
+  upper = false
+  special = false
+}
+
+module "adf" {
+  source = "../../modules/adf"
+  name = "${var.adf_name}-${random_string.suffix.result}"
+  location = var.location
+  resource_group_name = var.resource_group_name
+  tags = var.tags
+}
+
+resource "azurerm_role_assignment" "adf_storage_access" {
+  scope = module.storage_account.id
+  role_definition_name = "Storage Blob Data Contributor"
+  principal_id = module.adf.principal_id
+}
