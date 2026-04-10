@@ -10,3 +10,5 @@ tags = {
 storage_account_name = "sadatalakelearndkn"
 
 databricks_workspace_name = "adb-learning-dev"
+
+adf_name = "adf-learning-dev"
