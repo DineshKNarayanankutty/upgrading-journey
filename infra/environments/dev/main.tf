@@ -22,6 +22,8 @@ provider "databricks" {
   host = module.databricks_workspace.workspace_url
 }
 
+data "azurerm_client_config" "current" {}
+
 module "resource_group" {
   source = "../../modules/resource_group"
 
@@ -62,6 +64,7 @@ module "rbac" {
 
   storage_account_id = module.storage_account.id
   principal_id       = data.azurerm_databricks_access_connector.this.identity[0].principal_id
+  key_vault_id       = module.keyvault.vault_id
 }
 
 data "azurerm_databricks_access_connector" "this" {
@@ -102,21 +105,42 @@ resource "databricks_schema" "gold" {
 }
 
 resource "random_string" "suffix" {
-  length = 4
-  upper = false
+  length  = 4
+  upper   = false
   special = false
 }
 
 module "adf" {
-  source = "../../modules/adf"
-  name = "${var.adf_name}-${random_string.suffix.result}"
-  location = var.location
+  source              = "../../modules/adf"
+  name                = "${var.adf_name}-${random_string.suffix.result}"
+  location            = var.location
   resource_group_name = var.resource_group_name
-  tags = var.tags
+  tags                = var.tags
 }
 
 resource "azurerm_role_assignment" "adf_storage_access" {
-  scope = module.storage_account.id
+  scope                = module.storage_account.id
   role_definition_name = "Storage Blob Data Contributor"
-  principal_id = module.adf.principal_id
+  principal_id         = module.adf.principal_id
 }
+
+module "keyvault" {
+  source = "../../modules/keyvault"
+
+  name                = "${var.keyvault_name}-${random_string.suffix.result}"
+  resource_group_name = var.resource_group_name
+  location            = var.location
+  tenant_id           = data.azurerm_client_config.current.tenant_id
+}
+
+# module "adf_linked_services" {
+#   source = "../../modules/adf_linked_services"
+
+#   data_factory_id = module.adf.id
+
+#   storage_account_name = var.storage_account_name
+#   databricks_workspace_url = module.databricks_workspace.workspace_url
+#   databricks_pat = var.databricks_pat
+#   cluster_id = var.databricks_cluster_id
+# }
+
