@@ -133,14 +133,20 @@ module "keyvault" {
   tenant_id           = data.azurerm_client_config.current.tenant_id
 }
 
-# module "adf_linked_services" {
-#   source = "../../modules/adf_linked_services"
+resource "azurerm_role_assignment" "adf_kv_secrets" {
+  scope                = var.key_vault_id
+  role_definition_name = "Key Vault Secrets User"
+  principal_id         = azurerm_data_factory.your_adf.identity[0].principal_id
+}
 
-#   data_factory_id = module.adf.id
+module "adf_linked_services" {
+  source = "../../modules/adf_linked_services"
 
-#   storage_account_name = var.storage_account_name
-#   databricks_workspace_url = module.databricks_workspace.workspace_url
-#   databricks_pat = var.databricks_pat
-#   cluster_id = var.databricks_cluster_id
-# }
+  data_factory_id = module.adf.id
+
+  storage_account_name     = var.storage_account_name
+  databricks_workspace_url = module.databricks_workspace.workspace_url
+  cluster_id               = var.databricks_cluster_id
+  key_vault_id = module.keyvault.id
+}
 
