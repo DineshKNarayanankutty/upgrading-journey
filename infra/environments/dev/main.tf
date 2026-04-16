@@ -134,9 +134,9 @@ module "keyvault" {
 }
 
 resource "azurerm_role_assignment" "adf_kv_secrets" {
-  scope                = var.key_vault_id
+  scope                = module.keyvault.vault_id
   role_definition_name = "Key Vault Secrets User"
-  principal_id         = azurerm_data_factory.your_adf.identity[0].principal_id
+  principal_id         = module.adf.principal_id
 }
 
 module "adf_linked_services" {
@@ -146,7 +146,14 @@ module "adf_linked_services" {
 
   storage_account_name     = var.storage_account_name
   databricks_workspace_url = module.databricks_workspace.workspace_url
-  cluster_id               = var.databricks_cluster_id
-  key_vault_id = module.keyvault.id
+  cluster_id = module.databricks_cluster.cluster_id
+  key_vault_id = module.keyvault.vault_id
 }
 
+module "databricks_cluster" {
+  source = "../../modules/databricks_cluster"
+
+  cluster_name = "single-node-dev"
+  spark_version = "17.3.x-scala2.13"
+  node_type_id = "Standard_DC4as_v5"
+}
