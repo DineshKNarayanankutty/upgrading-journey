@@ -32,13 +32,3 @@ variable "keyvault_name" {
   description = "Key Vault Name"
   type        = string
 }
-
-variable "key_vault_id" {
-  description = "Key Vault ID"
-  type = string
-}
-
-variable "databricks_cluster_id" {
-  description = "Databricks Cluster ID"
-  type = string
-}
