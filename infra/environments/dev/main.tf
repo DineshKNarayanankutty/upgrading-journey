@@ -153,7 +153,9 @@ module "adf_linked_services" {
 module "databricks_cluster" {
   source = "../../modules/databricks_cluster"
 
-  cluster_name = "single-node-dev"
-  spark_version = "17.3.x-scala2.13"
-  node_type_id = "Standard_DC4as_v5"
+  cluster_name = var.cluster_name
+  spark_version = var.spark_version
+  node_type_id = var.node_type_id
+  single_user_name = var.single_user_name
+  autotermination_minutes = var.autotermination_minutes
 }
