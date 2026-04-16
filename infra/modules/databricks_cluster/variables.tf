@@ -9,3 +9,11 @@ variable "node_type_id" {
 variable "spark_version" {
   type = string
 }
+
+variable "single_user_name" {
+  type = string
+}
+
+variable "autotermination_minutes" {
+  type = number
+}
