@@ -33,13 +33,12 @@ variable "keyvault_name" {
   type        = string
 }
 
-# variable "databricks_pat" {
-#   description = "Databricks PAT Token"
-#   type = string
-#   sensitive = true
-# }
+variable "key_vault_id" {
+  description = "Key Vault ID"
+  type = string
+}
 
-# variable "databricks_cluster_id" {
-#   description = "Databricks Cluster ID"
-#   type = string
-# }
+variable "databricks_cluster_id" {
+  description = "Databricks Cluster ID"
+  type = string
+}
