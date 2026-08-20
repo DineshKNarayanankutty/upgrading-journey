@@ -166,3 +166,36 @@ WHERE salary = (
     )
 );
 ```
+
+Q9. (Hard)
+
+Find the highest-paid employee in each department.
+
+```
+SELECT department, name, salary
+FROM employees e
+WHERE salary = (
+    SELECT MAX(salary)
+    FROM employees
+    WHERE department = e.department
+);
+```
+
+Q10. (Hard)
+
+Find employees who do not have a manager.
+
+```
+SELECT name, department
+FROM employees
+WHERE manager_id IS NULL;
+```
+
+Q11. (Hard)
+
+Find the total salary paid in each department.
+```
+SELECT department, SUM(salary) AS total_salary
+FROM employees
+GROUP BY department;
+```
