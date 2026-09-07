@@ -199,3 +199,29 @@ SELECT department, SUM(salary) AS total_salary
 FROM employees
 GROUP BY department;
 ```
+
+Q12. (Hard)
+
+Find the names of employees who work in the same department as "Alice".
+
+```
+SELECT name, department
+FROM employees
+WHERE department = (
+    SELECT department
+    FROM employees
+    WHERE name = 'Alice'
+);
+```
+
+Q13. (Hard)
+
+Find the department with the highest total salary.
+
+```
+SELECT department, SUM(salary) AS total_salary
+FROM employees
+GROUP BY department
+ORDER BY total_salary DESC
+LIMIT 1;
+```
