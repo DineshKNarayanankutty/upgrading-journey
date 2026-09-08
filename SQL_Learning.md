@@ -225,3 +225,30 @@ GROUP BY department
 ORDER BY total_salary DESC
 LIMIT 1;
 ```
+
+### Q14. (Hard)
+
+Find the employees whose salary is higher than the average salary of their own department.
+
+```
+SELECT name, department, salary
+FROM employees e
+WHERE salary > (
+    SELECT AVG(salary)
+    FROM employees
+    WHERE department = e.department
+);
+```
+
+### Q15. (Hard)
+
+Find the department with the highest average salary.
+
+```
+SELECT department, AVG(salary) AS average_salary
+FROM employees
+GROUP BY department
+ORDER BY average_salary DESC
+LIMIT 1;
+```
+
