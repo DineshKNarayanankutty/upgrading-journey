@@ -52,3 +52,203 @@ SELECT tile FROM movies
 ORDER BY title ASC
 LIMIT 5 OFFSET 5;
 ```
+
+
+employees
+| emp_id | name    | department | salary | manager_id | hire_date  |
+| ------ | ------- | ---------- | -----: | ---------: | ---------- |
+| 1      | Alice   | IT         |  70000 |          5 | 2022-01-10 |
+| 2      | Bob     | HR         |  50000 |          6 | 2021-03-15 |
+| 3      | Charlie | IT         |  80000 |          5 | 2020-06-20 |
+| 4      | David   | Finance    |  60000 |          7 | 2023-02-11 |
+| 5      | Eve     | IT         | 100000 |       NULL | 2018-08-01 |
+| 6      | Frank   | HR         |  90000 |       NULL | 2017-09-12 |
+| 7      | Grace   | Finance    |  95000 |       NULL | 2016-05-30 |
+| 8      | Helen   | IT         |  75000 |          5 | 2024-01-18 |
+
+projects
+| project_id | project_name      | department | budget |
+| ---------- | ----------------- | ---------- | -----: |
+| 101        | AI Platform       | IT         | 500000 |
+| 102        | HR Portal         | HR         | 150000 |
+| 103        | Finance Dashboard | Finance    | 300000 |
+| 104        | Cloud Migration   | IT         | 700000 |
+
+Q1. (Easy)
+
+Display the names and salaries of all employees.
+
+```
+SELECT name, salary 
+FROM employees;
+```
+
+Q2. (Easy)
+
+Find all employees whose salary is greater than 75,000.
+
+```
+SELECT name, salary 
+FROM employees
+WHERE salary > 75000;
+```
+
+Q3. (Easy)
+
+Display all employees sorted by salary in descending order.
+
+```
+SELECT name, salary
+FROM employees
+ORDER BY salary DESC;
+```
+
+Q4. (Easy-Medium)
+
+Find the total number of employees in each department.
+
+```
+SELECT department, COUNT(*) AS Total_number_of_employees 
+FROM employees
+GROUP BY department;
+```
+
+Q5. (Medium)
+
+Find departments whose average salary is greater than 80,000.
+
+```
+SELECT department, AVG(salary) AS Average_salary
+FROM employees
+GROUP BY department
+HAVING AVG(salary) > 80000;
+```
+
+Q6. (Medium)
+
+Display each employee's name, department, and their project name.
+
+```
+SELECT employees.name,
+       employees.department,
+       projects.project_name
+FROM employees
+JOIN projects
+ON employees.department = projects.department;
+```
+
+Q7. (Medium)
+
+Find employees who earn more than the average salary of all employees.
+
+```
+SELECT name, salary
+FROM employees
+WHERE salary > (
+    SELECT AVG(salary)
+    FROM employees
+);
+```
+
+Q8. (Hard)
+
+Find the second highest salary.
+
+```
+SELECT name, salary
+FROM employees
+WHERE salary = (
+    SELECT MAX(salary)
+    FROM employees
+    WHERE salary < (
+        SELECT MAX(salary)
+        FROM employees
+    )
+);
+```
+
+Q9. (Hard)
+
+Find the highest-paid employee in each department.
+
+```
+SELECT department, name, salary
+FROM employees e
+WHERE salary = (
+    SELECT MAX(salary)
+    FROM employees
+    WHERE department = e.department
+);
+```
+
+Q10. (Hard)
+
+Find employees who do not have a manager.
+
+```
+SELECT name, department
+FROM employees
+WHERE manager_id IS NULL;
+```
+
+Q11. (Hard)
+
+Find the total salary paid in each department.
+```
+SELECT department, SUM(salary) AS total_salary
+FROM employees
+GROUP BY department;
+```
+
+Q12. (Hard)
+
+Find the names of employees who work in the same department as "Alice".
+
+```
+SELECT name, department
+FROM employees
+WHERE department = (
+    SELECT department
+    FROM employees
+    WHERE name = 'Alice'
+);
+```
+
+Q13. (Hard)
+
+Find the department with the highest total salary.
+
+```
+SELECT department, SUM(salary) AS total_salary
+FROM employees
+GROUP BY department
+ORDER BY total_salary DESC
+LIMIT 1;
+```
+
+### Q14. (Hard)
+
+Find the employees whose salary is higher than the average salary of their own department.
+
+```
+SELECT name, department, salary
+FROM employees e
+WHERE salary > (
+    SELECT AVG(salary)
+    FROM employees
+    WHERE department = e.department
+);
+```
+
+### Q15. (Hard)
+
+Find the department with the highest average salary.
+
+```
+SELECT department, AVG(salary) AS average_salary
+FROM employees
+GROUP BY department
+ORDER BY average_salary DESC
+LIMIT 1;
+```
+
