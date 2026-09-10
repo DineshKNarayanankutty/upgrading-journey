@@ -1,0 +1,15 @@
+$schema: https://azuremlschemas.azureedge.net/latest/commandJob.schema.json
+
+code: .
+
+command: python train.py
+
+environment: azureml://registries/azureml/environments/sklearn-1.5/labels/latest
+
+compute: azureml:aml-compute
+
+display_name: iris-mlflow-training
+
+experiment_name: iris-random-forest
+
+description: Train Random Forest on Iris dataset and track with MLflow.
