@@ -251,4 +251,27 @@ GROUP BY department
 ORDER BY average_salary DESC
 LIMIT 1;
 ```
+### Q16. (Hard)
+
+Find the names and salaries of employees who earn more than their manager.
+
+```
+SELECT e.name, e.salary
+FROM employees e
+JOIN employees m
+ON e.manager_id = m.emp_id
+WHERE e.salary > m.salary;
+```
+
+### Q17. (Hard)
+
+Find the department that has the highest number of employees.
+
+```
+SELECT department, COUNT(*) AS total_employees
+FROM employees
+GROUP BY department
+ORDER BY total_employees DESC
+LIMIT 1;
+```
 
