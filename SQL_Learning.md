@@ -275,3 +275,31 @@ ORDER BY total_employees DESC
 LIMIT 1;
 ```
 
+### Q18. (Hard)
+
+Find the names of employees who earn the same salary as at least one other employee.
+
+```sql
+SELECT name, salary
+FROM employees
+WHERE salary IN (
+    SELECT salary
+    FROM employees
+    GROUP BY salary
+    HAVING COUNT(*) > 1
+);
+```
+
+### Q19. (Hard)
+
+Find the names of employees who work in departments that have a project with a budget greater than 400,000.
+
+```sql
+SELECT name, department
+FROM employees
+WHERE department IN (
+    SELECT department
+    FROM projects
+    WHERE budget > 400000
+);
+```
