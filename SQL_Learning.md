@@ -303,3 +303,27 @@ WHERE department IN (
     WHERE budget > 400000
 );
 ```
+
+### Q20. (Hard)
+
+Find the **employee(s) with the highest salary in the entire company**.
+
+```sql
+SELECT name, department, salary
+FROM employees
+WHERE salary = (
+    SELECT MAX(salary)
+    FROM employees
+);
+```
+
+### Q21. (Hard)
+
+Find the **departments where every employee earns more than 60,000**.
+
+```sql
+SELECT department
+FROM employees
+GROUP BY department
+HAVING MIN(salary) > 60000;
+```
