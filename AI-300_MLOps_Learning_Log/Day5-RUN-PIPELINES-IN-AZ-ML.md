@@ -1,7 +1,7 @@
 # DAY 5 — RUN PIPELINES IN AZURE MACHINE LEARNING
 
 ## Mental Map
-
+```
 RUN PIPELINES IN AZURE MACHINE LEARNING
 │
 ├── 1. Create components
@@ -140,32 +140,7 @@ RUN PIPELINES IN AZURE MACHINE LEARNING
 │   │
 │   └── Component reuse/caching
 │       └── Avoid unnecessary repeated execution
-│
-│
-├── 4. Exercise — Run a pipeline
-│   │
-│   ├── Create/load components
-│   ├── Define pipeline
-│   ├── Provide pipeline input
-│   ├── Connect component outputs → inputs
-│   ├── Define pipeline outputs
-│   ├── Create pipeline job
-│   ├── Submit job
-│   └── Monitor execution
-│
-│
-├── 5. Module assessment
-│   └── Certification-style knowledge check
-│
-│
-└── 6. Summary
-├── Create reusable components
-├── Combine components into pipelines
-├── Define dependencies through inputs/outputs
-├── Submit pipeline jobs
-├── Monitor child jobs
-└── Reuse repeatable ML workflows
-
+```
 ---
 
 # 1. CREATE COMPONENTS
