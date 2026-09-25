@@ -1,11 +1,553 @@
 # AI-300 — Day 10 Learning Log
+Date: 2026-09-25 Microsoft Learn Module: AUTOMATED EVALUATION & OPTIMIZATION OF AI AGENTS
 
 ## GenAIOps: Automated Evaluation
 
 **Main topic:** Evaluate GenAI applications systematically, align automated evaluators with human judgment, create evaluation datasets, run batch evaluations, and integrate evaluations into GitHub Actions.
 
 ---
+## Mental Map
 
+```
+AUTOMATED EVALUATION & OPTIMIZATION
+│
+├── 1. WHY AUTOMATED EVALUATION?
+│   │
+│   ├── Goal
+│   │   └── Measure GenAI quality consistently at scale
+│   │
+│   ├── Human Evaluation
+│   │   ├── High contextual judgment
+│   │   ├── Domain expertise
+│   │   ├── Slow
+│   │   ├── Expensive
+│   │   └── Limited scalability
+│   │
+│   ├── Automated Evaluation
+│   │   ├── Fast
+│   │   ├── Consistent
+│   │   ├── Repeatable
+│   │   └── Scalable
+│   │
+│   └── Human-in-the-Loop (HITL)
+│       ├── Automation → handles volume
+│       └── Humans → handle judgment/edge cases
+│
+│
+├── 2. ALIGN AUTOMATED EVALUATORS WITH HUMAN CRITERIA
+│   │
+│   ├── Define Human Quality Criteria
+│   │   ├── Relevance
+│   │   ├── Intent Resolution
+│   │   ├── Groundedness
+│   │   ├── Coherence
+│   │   └── Domain-specific quality
+│   │
+│   ├── Select Appropriate Evaluators
+│   │   ├── Intent Resolution
+│   │   │   └── Did agent satisfy user's intent?
+│   │   │
+│   │   ├── Relevance
+│   │   │   └── Is response on-topic?
+│   │   │
+│   │   └── Groundedness
+│   │       └── Is response supported by context?
+│   │
+│   ├── Shadow Rating
+│   │   ├── Same examples
+│   │   ├── Human scores
+│   │   ├── Automated scores
+│   │   └── Compare results
+│   │
+│   ├── Sample Size
+│   │   └── 100–200 representative examples
+│   │
+│   ├── Pearson Correlation
+│   │   ├── Human ↔ Automated
+│   │   │
+│   │   ├── ≥ 0.7
+│   │   │   └── Strong alignment
+│   │   │
+│   │   ├── 0.5–0.7
+│   │   │   └── Moderate → investigate
+│   │   │
+│   │   └── < 0.5
+│   │       └── Weak → major refinement
+│   │
+│   ├── Adventure Works Target
+│   │   └── 0.75
+│   │
+│   └── Analyze Disagreements
+│       ├── Human score ≠ AI score
+│       ├── Find patterns
+│       ├── Identify evaluator blind spots
+│       └── Refine evaluator
+│
+│
+├── 3. HUMAN CONSISTENCY / CALIBRATION
+│   │
+│   ├── First Question
+│   │   └── Do humans agree with each other?
+│   │
+│   ├── Inter-Rater Reliability
+│   │   └── Measures evaluator agreement
+│   │
+│   ├── Cohen's Kappa
+│   │   └── Agreement between 2 raters
+│   │
+│   ├── Interpretation
+│   │   ├── > 0.8
+│   │   │   └── Excellent
+│   │   ├── 0.6–0.8
+│   │   │   └── Substantial
+│   │   ├── 0.4–0.6
+│   │   │   └── Moderate
+│   │   └── < 0.4
+│   │       └── Poor
+│   │
+│   └── Critical distinction
+│       ├── Pearson
+│       │   └── Human ↔ Automated
+│       └── Cohen's Kappa
+│           └── Human ↔ Human
+│
+│
+├── 4. CUSTOM EVALUATORS
+│   │
+│   ├── When?
+│   │   ├── Built-in evaluator insufficient
+│   │   ├── Domain-specific requirements
+│   │   ├── Regulatory requirements
+│   │   ├── Brand requirements
+│   │   └── Organization-specific quality
+│   │
+│   └── Lifecycle
+│       ├── Create custom evaluator
+│       ├── Shadow rating
+│       ├── Compare with humans
+│       ├── Calculate correlation
+│       ├── Analyze disagreements
+│       ├── Refine
+│       └── Revalidate
+│
+│
+├── 5. CREATE EVALUATION DATASETS
+│   │
+│   ├── Goal
+│   │   └── Representative test data
+│   │
+│   ├── Dataset Composition
+│   │   ├── Common → 60–70%
+│   │   │   └── Typical production usage
+│   │   │
+│   │   ├── Variations → 20–30%
+│   │   │   └── Same intent, different wording/context
+│   │   │
+│   │   ├── Edge → 5–10%
+│   │   │   └── Rare/unusual situations
+│   │   │
+│   │   └── Adversarial → 5–10%
+│   │       └── Misuse/prompt injection/safety
+│   │
+│   ├── Starting Example
+│   │   └── 100 examples
+│   │       ├── 70 common
+│   │       ├── 20 variations
+│   │       └── 10 edge/adversarial
+│   │
+│   ├── Data Sources
+│   │   ├── Production
+│   │   │   ├── Support tickets
+│   │   │   ├── Conversations
+│   │   │   ├── Search logs
+│   │   │   └── Form submissions
+│   │   │
+│   │   └── Synthetic
+│   │       ├── New systems
+│   │       ├── Rare scenarios
+│   │       ├── Adversarial cases
+│   │       └── Controlled variations
+│   │
+│   ├── Preparation
+│   │   ├── Clean
+│   │   │   ├── Remove duplicates
+│   │   │   ├── Remove empty data
+│   │   │   └── Remove malformed data
+│   │   │
+│   │   ├── Anonymize
+│   │   │   ├── Names
+│   │   │   ├── Emails
+│   │   │   ├── Phone numbers
+│   │   │   └── Account IDs
+│   │   │
+│   │   ├── Structure
+│   │   │   └── Categories + metadata
+│   │   │
+│   │   └── Validate
+│   │       ├── Realistic examples
+│   │       └── Correct composition
+│   │
+│   ├── PII Detection
+│   │   └── Azure Language PII detection
+│   │       └── NER
+│   │
+│   └── JSONL
+│       └── One JSON object per line
+│           ├── query
+│           ├── response
+│           ├── context
+│           └── ground_truth
+│
+│
+├── 6. EVALUATOR DATA REQUIREMENTS
+│   │
+│   ├── Intent Resolution
+│   │   └── query + response
+│   │
+│   ├── Relevance
+│   │   └── query + response
+│   │
+│   ├── Groundedness
+│   │   └── query + response + context
+│   │
+│   └── Content Safety
+│       └── query + response
+│
+│
+├── 7. MICROSOFT FOUNDRY DATASETS
+│   │
+│   ├── Upload JSONL
+│   │
+│   ├── Create Dataset
+│   │
+│   ├── Dataset Versioning
+│   │   ├── Version 1
+│   │   ├── Version 2
+│   │   └── Version 3
+│   │
+│   └── Benefits
+│       ├── Track changes
+│       ├── Compare results
+│       └── Reuse datasets
+│
+│
+├── 8. BATCH EVALUATIONS WITH PYTHON
+│   │
+│   ├── Cloud Evaluation
+│   │   └── Run evaluation against dataset at scale
+│   │
+│   ├── Data Schema
+│   │   └── Defines dataset structure
+│   │
+│   ├── Data Mapping
+│   │   └── Dataset fields → evaluator inputs
+│   │
+│   ├── Testing Criteria
+│   │   └── Defines evaluators to run
+│   │
+│   ├── Evaluation Definition
+│   │   └── Reusable "what/how"
+│   │
+│   ├── Evaluation Run
+│   │   └── Executes definition against dataset
+│   │
+│   ├── Cloud Execution
+│   │   ├── Parallel execution
+│   │   ├── Retries
+│   │   └── Rate limiting
+│   │
+│   ├── Asynchronous
+│   │   ├── Start
+│   │   ├── Poll status
+│   │   ├── Completed/Failed
+│   │   └── Retrieve results
+│   │
+│   └── Results
+│       ├── Label
+│       ├── Score
+│       ├── Threshold
+│       ├── Reason
+│       └── Details
+│
+│
+├── 9. EVALUATE & OPTIMIZE AI AGENTS
+│   │
+│   ├── Goal
+│   │   └── Determine whether an agent change improves the system
+│   │
+│   ├── Three Optimization Dimensions
+│   │   │
+│   │   ├── Quality
+│   │   │   └── How good is the response?
+│   │   │
+│   │   ├── Cost
+│   │   │   └── How expensive is the response?
+│   │   │
+│   │   └── Performance
+│   │       └── How fast is the response?
+│   │
+│   └── Optimize all three
+│       └── Quality + Cost + Performance
+│
+│
+├── 10. QUALITY EVALUATORS
+│   │
+│   ├── General-purpose
+│   │   ├── Coherence
+│   │   └── Fluency
+│   │
+│   ├── Textual Similarity
+│   │   ├── Similarity
+│   │   ├── F1
+│   │   ├── BLEU
+│   │   ├── GLEU
+│   │   ├── ROUGE
+│   │   └── METEOR
+│   │
+│   ├── Agent Evaluators
+│   │   ├── Task Adherence
+│   │   ├── Task Completion
+│   │   ├── Intent Resolution
+│   │   ├── Tool Call Accuracy
+│   │   ├── Tool Selection
+│   │   └── Tool Input Accuracy
+│   │
+│   └── RAG Evaluators
+│       ├── Retrieval
+│       ├── Document Retrieval
+│       └── Groundedness
+│
+│
+├── 11. SAFETY EVALUATION
+│   │
+│   ├── Hate & Unfairness
+│   ├── Sexual
+│   ├── Violence
+│   ├── Self-Harm
+│   ├── Protected Materials
+│   └── Content Safety
+│
+│
+├── 12. COST & PERFORMANCE METRICS
+│   │
+│   ├── Cost
+│   │   ├── Input tokens
+│   │   ├── Output tokens
+│   │   └── Model pricing → total cost
+│   │
+│   └── Performance
+│       ├── End-to-End Response Time
+│       │   └── Request → complete response
+│       │
+│       └── TTFT
+│           └── Time To First Token
+│
+│
+├── 13. BASELINE vs VARIANT
+│   │
+│   ├── Baseline
+│   │   └── Current/starting agent
+│   │
+│   ├── Variant
+│   │   └── Modified agent being tested
+│   │
+│   ├── Possible Changes
+│   │   ├── Prompt
+│   │   ├── Model
+│   │   ├── max_tokens
+│   │   ├── Temperature
+│   │   ├── Streaming
+│   │   └── Retrieval strategy
+│   │
+│   └── Controlled Experiment
+│       └── Change ONE variable at a time
+│
+│
+├── 14. TEST DATASET & SUCCESS CRITERIA
+│   │
+│   ├── Test Prompts
+│   │   ├── Real-world scenarios
+│   │   ├── Normal cases
+│   │   ├── Ambiguous requests
+│   │   ├── Incomplete information
+│   │   └── Edge cases
+│   │
+│   ├── Recommended Small Test Set
+│   │   └── 5–10 diverse prompts
+│   │
+│   ├── Success Criteria
+│   │   ├── Quality threshold
+│   │   ├── Cost threshold
+│   │   ├── Performance threshold
+│   │   └── Business requirements
+│   │
+│   └── Important
+│       └── Define criteria BEFORE testing
+│
+│
+├── 15. GIT-BASED EXPERIMENTATION
+│   │
+│   ├── Git Benefits
+│   │   ├── Version control
+│   │   ├── Experiment isolation
+│   │   └── Reproducibility
+│   │
+│   ├── Branches
+│   │   ├── main
+│   │   │   └── Current/production baseline
+│   │   │
+│   │   └── experiment/*
+│   │       └── Individual experiment
+│   │
+│   ├── Repository
+│   │   ├── agent.py
+│   │   │   └── Create/deploy agent
+│   │   │
+│   │   ├── run-agent.py
+│   │   │   └── Run test prompts
+│   │   │
+│   │   ├── prompts/
+│   │   │   └── Prompt versions
+│   │   │
+│   │   ├── test-prompts/
+│   │   │   └── Standardized test scenarios
+│   │   │
+│   │   └── experiments/
+│   │       ├── agent-responses.json
+│   │       │   └── Raw responses
+│   │       └── evaluation.csv
+│   │           └── Evaluation results
+│   │
+│   └── Experiment Workflow
+│       ├── Create experiment branch
+│       ├── Modify agent
+│       ├── Run same tests
+│       ├── Capture responses
+│       ├── Evaluate
+│       ├── Compare baseline vs variant
+│       └── Promote validated change
+│
+│
+├── 16. MANUAL EVALUATION
+│   │
+│   ├── Human reviews response
+│   │
+│   ├── Evaluation Rubric
+│   │   ├── Defines criteria
+│   │   ├── Defines score levels
+│   │   └── Provides example responses
+│   │
+│   ├── Example 1–5 Scale
+│   │   ├── 5 → Fully meets requirement
+│   │   ├── 4 → Minor gaps
+│   │   ├── 3 → Partially meets
+│   │   ├── 2 → Major gaps
+│   │   └── 1 → Misses requirement
+│   │
+│   └── Goal
+│       └── Same rubric → consistent evaluation
+│
+│
+├── 17. CALIBRATION
+│   │
+│   ├── Purpose
+│   │   └── Make evaluators score consistently
+│   │
+│   ├── Calibration Set
+│   │   └── 5–8 representative responses
+│   │
+│   └── Process
+│       ├── Select responses
+│       ├── Independent scoring
+│       ├── Compare scores
+│       ├── Discuss disagreements
+│       ├── Clarify rubric
+│       └── Repeat
+│
+│
+├── 18. INTER-RATER RELIABILITY
+│   │
+│   ├── Purpose
+│   │   └── Measure evaluator agreement
+│   │
+│   ├── Reliability Sample
+│   │   └── ~10–15 responses
+│   │
+│   ├── Agreement
+│   │   ├── Exact
+│   │   │   └── Same score
+│   │   │
+│   │   ├── Within 1 point
+│   │   │   └── Difference ≤ 1
+│   │   │
+│   │   └── Divergent
+│   │       └── Difference ≥ 2
+│   │
+│   └── Target
+│       └── ≥80% agreement within 1 point
+│
+│
+├── 19. STATISTICAL RELIABILITY MEASURES
+│   │
+│   ├── Cohen's Kappa
+│   │   └── 2 raters
+│   │
+│   ├── Fleiss' Kappa
+│   │   └── Multiple raters
+│   │
+│   ├── Krippendorff's Alpha
+│   │   └── General reliability measure
+│   │
+│   └── ICC
+│       └── Agreement/consistency of numerical ratings
+│
+│
+├── 20. PROMOTE OR REJECT EXPERIMENT
+│   │
+│   ├── Meets success criteria
+│   │   ├── Merge → main
+│   │   ├── Create version tag
+│   │   └── Promote validated version
+│   │
+│   └── Fails criteria
+│       ├── Document results
+│       ├── Record why it failed
+│       └── Keep/delete branch as appropriate
+│
+│
+├── 21. SCALE EVALUATION
+│   │
+│   ├── Early stage
+│   │   └── Manual human evaluation
+│   │
+│   ├── Mature stage
+│   │   ├── Automated evaluators
+│   │   └── Human spot-checks
+│   │
+│   └── Goal
+│       └── Scale evaluation while maintaining quality
+│
+│
+└── 22. CI/CD QUALITY GATE
+    │
+    ├── Pull Request
+    │
+    ├── GitHub Actions
+    │
+    ├── Federated Azure authentication
+    │
+    ├── Run evaluation
+    │
+    ├── Generate metrics
+    │
+    ├── Post results to PR
+    │
+    ├── Compare against thresholds
+    │
+    └── Decision
+        ├── PASS → Continue/Merge
+        └── FAIL → Investigate/Fix
+```
 # 1. Why Automated Evaluations?
 
 ## Automated Evaluation
